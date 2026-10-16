@@ -65,3 +65,9 @@ See [SECURITY.md](SECURITY.md) and [release checklist](docs/RELEASE_CHECKLIST.md
 ## Interface languages
 
 **English is the default.** In Windows **Settings → Language**, select French, Simplified Chinese, Hindi, Spanish, Arabic, Portuguese, Bengali, Russian, Urdu, Indonesian or Japanese. The choice persists across launches. The Android companion also offers the same 12 languages for primary controls; some technical instructions fall back to English.
+
+## Community contribution
+
+Anyone can propose bug fixes, translations and features using Issues and Pull Requests. Maintainer **@trigameyt** remains responsible for the official branch and releases. This project is independent, AI-assisted and video-only.
+
+[Roadmap](ROADMAP.md) · [Contributing](CONTRIBUTING.md) · [Governance](GOVERNANCE.md) · [Code of Conduct](CODE_OF_CONDUCT.md) · [GitHub setup checklist](docs/COMMUNITY_SETUP.md)

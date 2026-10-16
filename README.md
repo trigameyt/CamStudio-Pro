@@ -86,6 +86,19 @@ Les modifications sont sauvegardées après environ 350 ms d'inactivité, même 
 - La **connexion USB physique**, la signature de l'APK public, l'installation sur un PC vierge et les tests longs restent à valider avant la **V1.0 stable**.
 - Une ancienne V0.x peut encore tourner à côté de V1 : fermer manuellement les anciennes instances lors de la migration.
 
+## Community / Contribuer
+
+**Everyone can suggest improvements through GitHub Issues and Pull Requests.**
+The official main branch and releases are maintained by **@trigameyt**.
+AI-assisted contributions are welcome with human review and testing.
+
+- [Roadmap](ROADMAP.md) · [Contributing](CONTRIBUTING.md)
+- [Governance](GOVERNANCE.md) · [Code of Conduct](CODE_OF_CONDUCT.md)
+- [AI development disclosure](AI_DISCLOSURE.md) · [Security](SECURITY.md)
+- [Maintainer setup checklist](docs/COMMUNITY_SETUP.md)
+
+En français : la communauté peut proposer et tester des améliorations, mais le mainteneur valide chaque version officielle. Les fonctions sont centrées sur la vidéo, sans audio.
+
 ## Contribuer
 
 Lire [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md) et la [checklist](docs/RELEASE_CHECKLIST.md). Licence MIT préparée (à confirmer par le propriétaire avant la première publication).
