@@ -67,7 +67,12 @@ class UsbMonitor(QObject):
         self._busy=True
         def probe():
             ready,message=usb_device_state()
-            self.detected.emit(ready,message)
+            try:
+                if self._running:
+                    self.detected.emit(ready,message)
+            except RuntimeError:
+                # The window may close while ADB is still probing.
+                pass
         threading.Thread(target=probe,name='camstudio-usb-probe',daemon=True).start()
 
     def _mark_idle(self,_ready,_message):

@@ -345,6 +345,13 @@ class V04Controller:
         key_buttons.addWidget(button('Copier la clé',self._copy_pairing_key))
         key_buttons.addStretch(1)
         b.addLayout(key_buttons)
+        pairing_actions=QHBoxLayout()
+        pairing_actions.addWidget(button('Enregistrer la clé', self.studio.save_pairing_key, True))
+        pairing_actions.addWidget(button('Coller adresse + clé Android', self.studio.paste_android_pairing))
+        b.addLayout(pairing_actions)
+        self.pairing_feedback=label('Colle uniquement la clé, ou importe les deux lignes copiées sur Android.',muted=True)
+        b.addWidget(self.pairing_feedback)
+        self.key_edit.editingFinished.connect(self.studio.save_pairing_key)
         b.addWidget(label('Ne communique jamais cette clé publiquement.',muted=True))
         b.addWidget(label('USB : connexion automatique dès que le téléphone autorise ADB et que la clé est enregistrée.',muted=True))
         if hasattr(self.studio,'connection_method'):

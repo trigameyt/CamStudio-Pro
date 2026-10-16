@@ -28,6 +28,7 @@ from stream import MJPEGReader
 from usb_transport import open_usb_tunnel, UsbConnectionError
 from usb_monitor import UsbMonitor
 from secure_store import protect_key, reveal_key
+from pairing_input import parse_pairing_text
 from single_instance import InstanceGuard
 from camstudio_v04.controls import ClickJumpSlider
 from camstudio_v04.scene_engine import SceneStore, process_with_scene
@@ -346,6 +347,49 @@ class Studio(QMainWindow):
         staging.write_text(json.dumps(serialized,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
         os.replace(staging,CONFIG)
 
+    def save_pairing_key(self):
+        """Validate and persist the exact Android key immediately (no debounce)."""
+        try:
+            token, host = parse_pairing_text(self.key.text())
+            if host is not None:
+                self.host.setText(host)
+            self.key.setText(token)
+            self._save_config()
+            # The key must survive the same DPAPI decoding used on next launch.
+            stored = json.loads(CONFIG.read_text('utf-8')).get('key_protected', '')
+            if reveal_key(stored) != token:
+                raise OSError('Key persistence verification failed')
+        except ValueError as error:
+            self.status(str(error), '#ffa0af')
+            self._show_pairing_feedback('Clé non enregistrée : format invalide', ok=False)
+            return False
+        except (OSError, RuntimeError):
+            self.status('Impossible de sauvegarder la clé dans Windows.', '#ffa0af')
+            self._show_pairing_feedback('Erreur de sauvegarde Windows', ok=False)
+            return False
+        self.status('Clé de connexion enregistrée et protégée dans Windows.', '#79ddba')
+        self._show_pairing_feedback('Clé enregistrée et vérifiée', ok=True)
+        return True
+
+    def paste_android_pairing(self):
+        """Import both lines of Android's Copy address and key clipboard."""
+        try:
+            token, host = parse_pairing_text(QApplication.clipboard().text())
+        except ValueError as error:
+            self.status(str(error), '#ffa0af')
+            self._show_pairing_feedback('Presse Copier adresse et clé sur Android avant de coller', ok=False)
+            return False
+        if host is not None:
+            self.host.setText(host)
+        self.key.setText(token)
+        return self.save_pairing_key()
+
+    def _show_pairing_feedback(self, message, *, ok):
+        modern = getattr(self, '_modern_ui', None)
+        if modern and hasattr(modern, 'pairing_feedback'):
+            modern.pairing_feedback.setText(message)
+            modern.pairing_feedback.setStyleSheet('color: #79ddba;' if ok else 'color: #ffa0af;')
+
     def _toggle_key_visibility(self):
         shown=self.key.echoMode()==QLineEdit.Password
         mode=QLineEdit.Normal if shown else QLineEdit.Password
@@ -367,10 +411,12 @@ class Studio(QMainWindow):
                 if self.worker is None and self.connection_method.currentIndex()==1:
                     self.status(message)
             return
-        if not self.key.text().strip():
-            if self._last_usb_state!='key_required':
-                self._last_usb_state='key_required'
-                self.status('USB détecté : saisis une fois la clé affichée sur Android.')
+        try:
+            parse_pairing_text(self.key.text())
+        except ValueError:
+            if self._last_usb_state != 'key_required':
+                self._last_usb_state = 'key_required'
+                self.status('USB détecté : entre ou importe une clé Android valide (32 caractères).')
             return
         now=time.monotonic()
         if now-self._last_usb_attempt < 8.:
@@ -814,9 +860,10 @@ class Studio(QMainWindow):
     def connect_camera(self):
         if self.worker is not None: return
         try:
-            token=self.key.text().strip()
-            if not token:
-                raise ValueError('Saisis la clé affichée sur le téléphone')
+            token, pasted_host = parse_pairing_text(self.key.text())
+            if pasted_host is not None:
+                self.host.setText(pasted_host)
+            self.key.setText(token)
             if self.connection_method.currentIndex()==1:
                 self.usb_tunnel=open_usb_tunnel()
                 addr=self.usb_tunnel.url
